@@ -73,10 +73,11 @@ namespace Dev2.Tests.Activities.ActivityTests
             var act = new MySimpleActivity();
             act.Input1 = "[[OutVar1]]";
             act.Input2 = "[[OutVar2]]";
+            act.Result = "[[ResultVar]]";
             List<DebugItem> inRes;
             List<DebugItem> outRes;
 
-            const string dataList = "<ADL><OutVar1/><OutVar2/></ADL>";
+            const string dataList = "<ADL><OutVar1/><OutVar2/><ResultVar/></ADL>";
             const string dataListWithData = "<ADL>" +
                                             "<OutVar1>TestVal</OutVar1><OutVar2>TestVal2</OutVar2></ADL>";
 
@@ -196,7 +197,8 @@ namespace Dev2.Tests.Activities.ActivityTests
 
         protected override string PerformExecution(Dictionary<string,string> evaluatedValues)
         {
-            throw new NotImplementedException();
+            var result = evaluatedValues["Input1"] + " - " + evaluatedValues["Input2"];
+            return result;
         }
     }
 }

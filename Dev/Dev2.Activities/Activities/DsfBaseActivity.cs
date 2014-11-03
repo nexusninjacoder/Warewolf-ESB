@@ -6,8 +6,10 @@ using System.Reflection;
 using Dev2.Activities.Debug;
 using Dev2.Common;
 using Dev2.Common.Interfaces.Diagnostics.Debug;
+using Dev2.Data.Factories;
 using Dev2.DataList.Contract;
 using Dev2.DataList.Contract.Binary_Objects;
+using Dev2.DataList.Contract.Builders;
 using Dev2.DataList.Contract.Value_Objects;
 using Dev2.Diagnostics;
 using Dev2.Util;
@@ -69,8 +71,8 @@ namespace Dev2.Activities
                 }
                 var itemToAdd = new DebugItem();
                 IDev2IteratorCollection colItr = Dev2ValueObjectFactory.CreateIteratorCollection();
-
-                
+                IDev2DataListUpsertPayloadBuilder<string> toUpsert = Dev2DataListBuilderFactory.CreateStringDataListUpsertBuilder(true);
+                var iteratorPropertyDictionary = new Dictionary<string, IDev2DataListEvaluateIterator>();
                 foreach (var propertyInfo in this.GetType().GetProperties().Where(info => info.IsDefined(typeof(Inputs))))
                 {
                     var attributes = (Inputs[]) propertyInfo.GetCustomAttributes(typeof(Inputs), false);
@@ -79,14 +81,30 @@ namespace Dev2.Activities
                     AddDebugItem(new DebugItemVariableParams(variableValue, attributes[0].UserVisibleName, binaryDataListEntry, executionId),itemToAdd);
                     IDev2DataListEvaluateIterator dtItr = CreateDataListEvaluateIterator(variableValue, executionId, compiler, colItr, allErrors);
                     colItr.AddIterator(dtItr);
+                    iteratorPropertyDictionary.Add(propertyInfo.Name,dtItr);
+
+                }
+                
+                while (colItr.HasMoreData())
+                {
+                    var evaluatedValues = new Dictionary<string, string>();
+                    foreach (var dev2DataListEvaluateIterator in iteratorPropertyDictionary)
+                    {
+                        var binaryDataListItem = colItr.FetchNextRow(dev2DataListEvaluateIterator.Value);
+                        evaluatedValues.Add(dev2DataListEvaluateIterator.Key,binaryDataListItem.TheValue);
+                    }
+                    var result = PerformExecution(evaluatedValues);
+                    toUpsert.Add(Result, result);
                 }
                 allErrors.MergeErrors(errors);
-                string result = PerformExecution(new Dictionary<string, string>());
-                compiler.Upsert(executionId, Result, result, out errors);
+                compiler.Upsert(executionId, toUpsert, out errors);
 
                 if (dataObject.IsDebugMode() && !allErrors.HasErrors())
                 {
-                    //AddDebugOutputItem(Result, executionId);
+                    foreach (var debugOutputTo in toUpsert.DebugOutputs)
+                    {
+                        AddDebugOutputItem(new DebugItemVariableParams(debugOutputTo));
+                    }
                 }
                 allErrors.MergeErrors(errors);
             }
