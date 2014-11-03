@@ -1557,20 +1557,20 @@ Scenario: Workflow with Assign and Calculate
 
 #This Scenario should be passed after the bug 11714 is fixed
 Scenario: Workflow with Assign and ForEach
-     Given I have a workflow "WFWithForEach"
-	 And "WFWithForEach" contains an Assign "Rec To Convert" as
+     Given I have a workflow "WFWithAssignForEach"
+	 And "WFWithAssignForEach" contains an Assign "Rec To Convert" as
 	  | variable    | value |
 	  | [[Warewolf]] | bob   |
-     And "WFWithForEach" contains a Foreach "ForEachTest" as "NumOfExecution" executions "3"
+     And "WFWithAssignForEach" contains a Foreach "ForEachTest" as "NumOfExecution" executions "3"
 	 And "ForEachTest" contains workflow "11714Nested" with mapping as
 	 | Input to Service | From Variable | Output from Service | To Variable |
 	 | a                | [[Warewolf]]      |                     |             |
-	 When "WFWithForEach" is executed
+	 When "WFWithAssignForEach" is executed
 	 Then the workflow execution has "NO" error
-	 And the 'ForEachTest' in WorkFlow 'WFWithForEach' debug inputs as 
+	 And the 'ForEachTest' in WorkFlow 'WFWithAssignForEach' debug inputs as 
 	    |                 | Number |
 	    | No. of Executes | 3      |
-	 And the 'ForEachTest' in WorkFlow 'WFWithForEach' has  "3" nested children 
+	 And the 'ForEachTest' in WorkFlow 'WFWithAssignForEach' has  "3" nested children 
 	 And each "11714Nested" contains debug outputs for "Assign (1)" as
       | variable | value    |
       | [[a]]    | warewolf |  
@@ -2385,26 +2385,26 @@ Examples:
       #| 13 | [[rec([[[[b]]]]).a]]   |
 
 
-Scenario Outline: Testing Format Numbers with two variables in Result
-      Given I have a workflow "Workflowforfn"
-	  And "Workflowforfn" contains an Assign "Values" as
-	  | variable | value |
-	  | [[a]]    | 1     |
-	  | [[b]]    | 2     |
-	  And "Workflowforfn" contains Format Number "Fnumber" as 
-	  | Number  | Rounding Selected | Rounding To | Decimal to show | Result       |
-	  | 123.568 | Up                | 2           | 2               | '<Variable>' |
-	  When "Workflowforfn" is executed  	  
-	  Then the workflow execution has "AN" error
-	  And the 'Fnumber' in WorkFlow 'Workflowforfn' debug inputs as 	
-	  | Number  | Rounding | Rounding Value | Decimals to show |
-	  | 123.568 | Up       | 2              | 2                |
-	  And the 'Fnumber' in Workflow 'Workflowforfn' debug outputs as 
-	  |                |
-	  | '<Variable>' = |
-Examples: 
-      | No | Variable               |
-      | 1  | [[a]][[Result]]        |
+#Scenario Outline: Testing Format Numbers with two variables in Result
+ #     Given I have a workflow "Workflowforfn"
+#	  And "Workflowforfn" contains an Assign "Values" as
+#	  | variable | value |
+#	  | [[a]]    | 1     |
+#	  | [[b]]    | 2     |
+#	  And "Workflowforfn" contains Format Number "Fnumber" as 
+#	  | Number  | Rounding Selected | Rounding To | Decimal to show | Result       |
+#	  | 123.568 | Up                | 2           | 2               | '<Variable>' |
+#	  When "Workflowforfn" is executed  	  
+#	  Then the workflow execution has "AN" error
+#	  And the 'Fnumber' in WorkFlow 'Workflowforfn' debug inputs as 	
+#	  | Number  | Rounding | Rounding Value | Decimals to show |
+#	  | 123.568 | Up       | 2              | 2                |
+#	  And the 'Fnumber' in Workflow 'Workflowforfn' debug outputs as 
+#	  |                |
+#	  | '<Variable>' = |
+#Examples: 
+     # | No | Variable               |
+    #  | 1  | [[a]][[Result]]        |
       #| 2  | [[a]]*]]               |
       #| 3  | [[var@]]               |
       #| 4  | [[var]]00]]            |
@@ -2794,28 +2794,28 @@ Scenario: Workflow with Assign and Unique Tool, Result rec with star
 
 
 Scenario: Convert an recordset to Upper by using index as scalar
-	Given I have a workflow "ConvertUsingScalarInRecursiveEvalution"
-	And "ConvertUsingScalarInRecursiveEvalution" contains an Assign "Records" as
+	Given I have a workflow "ConvertUsingScalarWithRecursiveEvalution"
+	And "ConvertUsingScalarWithRecursiveEvalution" contains an Assign "Records" as
 	  | variable     | value    |
 	  | [[rs().row]] | warewolf |
 	  | [[a]]        | 1        |
-	And "ConvertUsingScalarInRecursiveEvalution" contains case convert "Case to Convert" as
+	And "ConvertUsingScalarWithRecursiveEvalution" contains case convert "Case to Convert" as
 	  | Variable          | Type  |
 	  | [[rs([[a]]).row]] | UPPER |
-	When "ConvertUsingScalarInRecursiveEvalution" is executed
+	When "ConvertUsingScalarWithRecursiveEvalution" is executed
 	Then the workflow execution has "NO" error
-	And the 'Records' in WorkFlow 'ConvertUsingScalarInRecursiveEvalution' debug inputs as
+	And the 'Records' in WorkFlow 'ConvertUsingScalarWithRecursiveEvalution' debug inputs as
 	  | # | Variable       | New Value |
 	  | 1 | [[rs().row]] = | warewolf  |
 	  | 2 | [[a]] =        | 1         |
-	And the 'Records' in Workflow 'ConvertUsingScalarInRecursiveEvalution' debug outputs as  
+	And the 'Records' in Workflow 'ConvertUsingScalarWithRecursiveEvalution' debug outputs as  
 	  | # |                           |
 	  | 1 | [[rs(1).row]] =  warewolf |
 	  | 2 | [[a]] =  1                |
-	And the 'Case to Convert' in WorkFlow 'ConvertUsingScalarInRecursiveEvalution' debug inputs as
+	And the 'Case to Convert' in WorkFlow 'ConvertUsingScalarWithRecursiveEvalution' debug inputs as
 	  | # | Convert                  | To    |
 	  | 1 | [[rs(1).row]] = warewolf | UPPER |
-	And the 'Case to Convert' in Workflow 'ConvertUsingScalarInRecursiveEvalution' debug outputs as
+	And the 'Case to Convert' in Workflow 'ConvertUsingScalarWithRecursiveEvalution' debug outputs as
 	  | # |                          |
 	  | 1 | [[rs(1).row]] = WAREWOLF |
 
@@ -4809,19 +4809,19 @@ Scenario: Executing Control Flow - Switch example workflow
 	
 
 Scenario: Executing Workflow Service and Decision tool expected bubling out error in workflow service
-	  Given I have a workflow "Utility - Assign"
-	  And "Utility - Assign Test" contains "Utility - Assign" from server "localhost" with mapping as
+	  Given I have a workflow "Utility - Assign WF"
+	  And "Utility - Assign WF" contains "Utility - Assign" from server "localhost" with mapping as
 	  | Input to Service | From Variable | Output from Service | To Variable        |
-	  |                  |               | [[rec(*).set]]      | [[rec().set]]      |
-	  |                  |               | [[hero(*).pushups]] | [[hero().pushups]] |
-	  |                  |               | [[hero(*).name]]    | [[hero().name]]    |
-	  When "Utility - Assign Test" is executed
+	  |                  |               | rec(*).set      | [[myrec().set]]      |
+	  |                  |               | hero(*).pushups | [[thehero().pushups]] |
+	  |                  |               | hero(*).name    | [[thehero().name]]    |
+	  When "Utility - Assign WF" is executed
 	  Then the workflow execution has "NO" error
-	  And the 'Utility - Assign' in Workflow 'Utility - Assign' debug outputs as    
+	  And the 'Utility - Assign' in Workflow 'Utility - Assign WF' debug outputs as    
 	  |                                                                   |
-	  | [[rec(1).set]] =    Bart Simpson: I WILL NOT INSTIGATE REVOLUTION |
-	  | [[hero(1).pushups]] = All of them.                                |
-	  | [[hero(1).name]] =   Chuck Norris                                 |
+	  | [[myrec(1).set]] =    Bart Simpson: I WILL NOT INSTIGATE REVOLUTION |
+	  | [[thehero(1).pushups]] = All of them.                                |
+	  | [[thehero(1).name]] =   Chuck Norris                                 |
 	
 #Bug - 17484	  
 Scenario: Error from workflow service is expected to buble out

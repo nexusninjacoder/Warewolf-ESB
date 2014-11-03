@@ -402,6 +402,13 @@ Server: Version {1}
 Sofware development by: www.dev2.co.za
 </value>
   </data>
+  <data name="Server_About_Content" xml:space="preserve">
+    <value>Server: Version {1}
+
+Sofware development by: www.dev2.co.za
+</value>
+  </data>
+  
   <data name="About_Header_Text" xml:space="preserve">
     <value>About</value>
   </data>
@@ -415,7 +422,7 @@ Sofware development by: www.dev2.co.za
     <value>pack://application:,,,/Warewolf Studio;component/images/WarewolfLogoMedRes.png</value>
   </data>
   <data name="SplashImage" xml:space="preserve">
-    <value>Images\SplashPage.png</value>
+    <value>Images\SplashImage_New_2014.jpg</value>
   </data>
   <data name="Dev2StudioLDAPEndpoint" xml:space="preserve">
     <value>LDAP://premier.local</value>
